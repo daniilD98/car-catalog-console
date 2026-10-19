@@ -8,8 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import collection.MyArrayList;
 
 public class CarFileReader {
 
@@ -21,8 +20,8 @@ public class CarFileReader {
         this.validator = validator;
     }
 
-    public List<Car> read(String path) throws IOException {
-        List<Car> result = new ArrayList<>();
+    public MyArrayList<Car> read(String path) throws IOException {
+        MyArrayList<Car> result = new MyArrayList<>();
 
         try (BufferedReader reader = Files.newBufferedReader(Path.of(path))) {
             String line;

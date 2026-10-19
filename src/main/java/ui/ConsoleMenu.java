@@ -1,5 +1,6 @@
 package ui;
 
+import collection.MyArrayList;
 import exception.ValidationException;
 import io.CarFileReader;
 import model.Car;
@@ -8,15 +9,13 @@ import validation.CarValidator;
 
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleMenu {
 
     private final Scanner scanner = new Scanner(System.in);
-    private final List<Car> cars = new ArrayList<>();
+    private final MyArrayList<Car> cars = new MyArrayList<>();
     private final CarValidator validator = new CarValidator();
     private final CarFileReader fileReader = new CarFileReader(validator);
     private final CarService service = new CarService();
@@ -37,6 +36,8 @@ public class ConsoleMenu {
                 case 2 -> loadFromFile();
                 case 3 -> processData();
                 case 4 -> printAll();
+                case 5 -> showCarByIndex();
+                case 6 -> removeCarByIndex();
                 case 0 -> {
                     System.out.println("Завершение работы программы...");
                     return;
@@ -53,6 +54,8 @@ public class ConsoleMenu {
                 2. Загрузить данные из файла
                 3. Обработать данные
                 4. Показать все автомобили
+                5. Показать автомобиль по номеру
+                6. Удалить автомобиль по номеру
                 0. Выход
                 """);
         System.out.print("Выберите пункт меню: ");
@@ -80,7 +83,7 @@ public class ConsoleMenu {
         System.out.print("Путь к файлу: ");
         String path = scanner.nextLine().trim();
         try {
-            List<Car> loaded = fileReader.read(path);
+            MyArrayList<Car> loaded = fileReader.read(path);
             cars.addAll(loaded);
             System.out.println("Загружено автомобилей: " + loaded.size());
         } catch (IOException e) {
@@ -123,17 +126,51 @@ public class ConsoleMenu {
             case 2 -> service.getDescriptions(cars).forEach(System.out::println);
             case 3 -> printCars(service.sortBy(cars, Comparator.comparingDouble(Car::getPower)));
             case 4 -> printCars(service.sortBy(cars, Comparator.comparingInt(Car::getYearOfManufacture)));
-            case 5 -> printCars(service.sortBy(cars, Comparator.comparing(Car::getModel, String.CASE_INSENSITIVE_ORDER)));
+            case 5 -> printCars(service.sortBy(cars,
+                    Comparator.comparing(Car::getModel, String.CASE_INSENSITIVE_ORDER)));
             case 0 -> { }
             default -> System.out.println("Неизвестная команда.");
         }
     }
 
     private void printAll() {
-        printCars(cars);
+        if (cars.isEmpty()) {
+            System.out.println("Список пуст.");
+            return;
+        }
+        for (int i = 0; i < cars.size(); i++) {
+            System.out.println((i + 1) + ". " + cars.get(i));
+        }
     }
 
-    private void printCars(List<Car> list) {
+    private void showCarByIndex() {
+        if (cars.isEmpty()) {
+            System.out.println("Список пуст.");
+            return;
+        }
+        int number = readInt("Номер автомобиля (1-" + cars.size() + "): ");
+        try {
+            System.out.println(cars.get(number - 1));
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+    }
+
+    private void removeCarByIndex() {
+        if (cars.isEmpty()) {
+            System.out.println("Список пуст.");
+            return;
+        }
+        int number = readInt("Номер автомобиля для удаления (1-" + cars.size() + "): ");
+        try {
+            Car removed = cars.remove(number - 1);
+            System.out.println("Удалён: " + removed);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Ошибка: " + e.getMessage());
+        }
+    }
+
+    private void printCars(MyArrayList<Car> list) {
         if (list.isEmpty()) {
             System.out.println("Ничего не найдено.");
             return;

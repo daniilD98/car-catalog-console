@@ -1,27 +1,29 @@
 package service;
 
+import collection.MyArrayList;
 import model.Car;
 
 import java.util.Comparator;
-import java.util.List;
+import java.util.stream.Stream;
 
 public class CarService {
 
-    public List<Car> filterByMinPower(List<Car> cars, double minPower) {
-        return cars.stream()
-                .filter(car -> car.getPower() >= minPower)
-                .toList();
+    public MyArrayList<Car> filterByMinPower(MyArrayList<Car> cars, double minPower) {
+        return toMyList(cars.stream()
+                .filter(car -> car.getPower() >= minPower));
     }
 
-    public List<String> getDescriptions(List<Car> cars) {
-        return cars.stream()
-                .map(car -> car.getModel() + " (" + car.getYearOfManufacture() + ")")
-                .toList();
+    public MyArrayList<String> getDescriptions(MyArrayList<Car> cars) {
+        return toMyList(cars.stream()
+                .map(car -> car.getModel() + " (" + car.getYearOfManufacture() + ")"));
     }
 
-    public List<Car> sortBy(List<Car> cars, Comparator<Car> comparator) {
-        return cars.stream()
-                .sorted(comparator)
-                .toList();
+    public MyArrayList<Car> sortBy(MyArrayList<Car> cars, Comparator<Car> comparator) {
+        return toMyList(cars.stream()
+                .sorted(comparator));
+    }
+
+    private <T> MyArrayList<T> toMyList(Stream<T> stream) {
+        return stream.collect(MyArrayList::new, MyArrayList::add, MyArrayList::addAll);
     }
 }
