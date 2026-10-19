@@ -1,0 +1,6 @@
+Toyota Camry;181;2020
+BMW M3;480;2022
+Lada Vesta;106,5;2019
+Битая строка
+Honda Civic;abc;2018
+Audi A4;190;1850
