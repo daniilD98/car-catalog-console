@@ -101,4 +101,12 @@ public class MyArrayList<T> implements Iterable<T> {
                     "Индекс " + index + " вне диапазона, размер коллекции: " + size);
         }
     }
+
+    public void swap(int i, int j) {
+        checkIndex(i);
+        checkIndex(j);
+        Object temp = elements[i];
+        elements[i] = elements[j];
+        elements[j] = temp;
+    }
 }

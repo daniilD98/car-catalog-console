@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.util.Comparator;
 import java.util.Scanner;
+import sort.BubbleSort;
+import sort.QuickSort;
+import sort.SortAlgorithm;
 
 public class ConsoleMenu {
 
@@ -19,6 +22,7 @@ public class ConsoleMenu {
     private final CarValidator validator = new CarValidator();
     private final CarFileReader fileReader = new CarFileReader(validator);
     private final CarService service = new CarService();
+    private final MyArrayList<SortAlgorithm<Car>> algorithms = createAlgorithms();
 
     public void start() {
         while (true) {
@@ -124,10 +128,9 @@ public class ConsoleMenu {
                 printCars(service.filterByMinPower(cars, minPower));
             }
             case 2 -> service.getDescriptions(cars).forEach(System.out::println);
-            case 3 -> printCars(service.sortBy(cars, Comparator.comparingDouble(Car::getPower)));
-            case 4 -> printCars(service.sortBy(cars, Comparator.comparingInt(Car::getYearOfManufacture)));
-            case 5 -> printCars(service.sortBy(cars,
-                    Comparator.comparing(Car::getModel, String.CASE_INSENSITIVE_ORDER)));
+            case 3 -> sortCars(Comparator.comparingDouble(Car::getPower));
+            case 4 -> sortCars(Comparator.comparingInt(Car::getYearOfManufacture));
+            case 5 -> sortCars(Comparator.comparing(Car::getModel, String.CASE_INSENSITIVE_ORDER));
             case 0 -> { }
             default -> System.out.println("Неизвестная команда.");
         }
@@ -197,6 +200,49 @@ public class ConsoleMenu {
             } catch (NumberFormatException e) {
                 System.out.println("Ошибка: введите целое число.");
             }
+        }
+    }
+    private static MyArrayList<SortAlgorithm<Car>> createAlgorithms() {
+        MyArrayList<SortAlgorithm<Car>> list = new MyArrayList<>();
+        list.add(new BubbleSort<>());
+        list.add(new QuickSort<>());
+        return list;
+    }
+
+    private void sortCars(Comparator<Car> comparator) {
+        SortAlgorithm<Car> algorithm = chooseAlgorithm();
+        boolean ascending = chooseDirection();
+        System.out.println("Алгоритм: " + algorithm.getName());
+        printCars(service.sortBy(cars, comparator, algorithm, ascending));
+    }
+
+    private SortAlgorithm<Car> chooseAlgorithm() {
+        System.out.println("Выберите алгоритм сортировки:");
+        for (int i = 0; i < algorithms.size(); i++) {
+            System.out.println((i + 1) + ". " + algorithms.get(i).getName());
+        }
+        while (true) {
+            int number = readInt("Номер алгоритма: ");
+            if (number >= 1 && number <= algorithms.size()) {
+                return algorithms.get(number - 1);
+            }
+            System.out.println("Ошибка: введите число от 1 до " + algorithms.size() + ".");
+        }
+    }
+
+    private boolean chooseDirection() {
+        System.out.println("Направление сортировки:");
+        System.out.println("1. По возрастанию");
+        System.out.println("2. По убыванию");
+        while (true) {
+            int number = readInt("Ваш выбор: ");
+            if (number == 1) {
+                return true;
+            }
+            if (number == 2) {
+                return false;
+            }
+            System.out.println("Ошибка: введите 1 или 2.");
         }
     }
 }
